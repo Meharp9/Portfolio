@@ -30,7 +30,7 @@ const App = () => {
   ];
 
   const addExpenseHandler = (expense) => {
-    expenses.push(expense);
+    expenses.log("In App.js");
     console.log(expenses);
   };
 
