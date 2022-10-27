@@ -49,42 +49,35 @@ const Login = (props) => {
 
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
     value: '', 
-    isValid: false
+    isValid: null
   });
 
   const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
     value: '',
-    isValid: false
+    isValid: null
   });
-  
-  // useEffect(() => {
-  //   const identifier = setTimeout(() => {
-  //     setFormIsValid(
-  //       enteredEmail.includes('@') && enteredPassword.trim().length > 6
-  //     );
-  //   }, 500);
 
-  //   return () => {
-  //     clearTimeout(identifier)
-  //   }; // cleaup function (runs before every side-effect function execution)
-  // }, [enteredEmail, enteredPassword]);
+  const { isValid:  emailIsValid } = emailState; // Alias assignment using object destructuring
+  const { isValid: passwordIsValid } = passwordState;
+  
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      setFormIsValid(
+        emailIsValid && passwordIsValid
+      );
+    }, 500);
+
+    return () => {
+      clearTimeout(identifier)
+    }; // cleaup function (runs before every side-effect function execution)
+  }, [emailIsValid, passwordIsValid]);
   
   const emailChangeHandler = (event) => {
     dispatchEmail({type: 'USER_INPUT', val: event.target.value});
-
-    setFormIsValid(
-      event.target.value.includes('@') && passwordState.isValid
-    );
-
   };
 
   const passwordChangeHandler = (event) => {
     dispatchPassword({type: 'USER_INPUT', val: event.target.value});
-
-    setFormIsValid(
-      emailState.isValid && event.target.value.trim().length > 6
-    );
-
   };
 
   const validateEmailHandler = () => {
