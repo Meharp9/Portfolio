@@ -8,6 +8,9 @@ import Checkout from "./Checkout";
 
 const Cart = props => {
     const [isCheckout, setIsCheckout] = useState(false);
+    const [isSubmitting, setIsSubmitting] =  useState(false);
+    const [didSubmit, setDidSubmit] = useState(false);
+
     const cartCtx = useContext(CartContext);
 
     const totalAmount = `$${cartCtx.totalAmount.toFixed(2)}`;
@@ -24,6 +27,22 @@ const Cart = props => {
     const orderHandler = () => {
         setIsCheckout(true);
     }
+
+    const sumbitOrderHandler = async (userData) => {
+        setIsSubmitting(true);
+        await fetch('https://react-http-92e61-default-rtdb.firebaseio.com/orders.json', {
+            method: 'POST',
+            body: JSON.stringify({
+                user: userData,
+                orderedItems: cartCtx.items
+            })
+        });
+
+        setIsSubmitting(false);
+        setDidSubmit(true);
+
+        cartCtx.clearCart();
+    };
 
     const cartItems = (
         <ul className={classes['cart-items']}>
@@ -49,14 +68,26 @@ const Cart = props => {
         </div>
     );
 
+    const cartModalContent = (
+        <React.Fragment>
+            {cartItems}
+            <div className={classes.total}>
+                <span>Total Amount</span>
+                <span>{totalAmount}</span>
+            </div>
+            { isCheckout && <Checkout onCancel={props.onClose} onConfirm={sumbitOrderHandler}/> }
+            { !isCheckout && modalActions }
+        </React.Fragment>
+    )
+
+    const isSubmittingModalContent = <p>Sending Order Data</p>
+
+    const didSubmitModalContent = <p>Successfully sent the order!</p>
+
     return <Modal onClose={props.onClose}>
-        {cartItems}
-        <div className={classes.total}>
-            <span>Total Amount</span>
-            <span>{totalAmount}</span>
-        </div>
-        { isCheckout && <Checkout onCancel={props.onClose} /> }
-        { !isCheckout && modalActions }
+        {!isSubmitting && !didSubmit && cartModalContent}
+        {isSubmitting && isSubmittingModalContent}
+        {didSubmit && didSubmitModalContent}
     </Modal>
 };
 
